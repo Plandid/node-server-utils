@@ -1,5 +1,4 @@
 const axios = require("axios");
-const config = require("./config");
 
 // not exported
 
@@ -17,8 +16,8 @@ function objectMatchesTemplate(obj, template, typeCheck=false) {
     return true;
 }
 
-function generatePlandidAuthToken() {
-    return Buffer.from(`${config.serviceName}:${process.env.SERVICE_ID}`, 'utf8').toString('base64');
+function generateAuthToken(username, password) {
+    return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
 }
 
 function useFilter(req, pathFilter, recordFilter) {
@@ -167,7 +166,7 @@ async function assignEnvironment() {
 
 module.exports = {
     objectMatchesTemplate: objectMatchesTemplate,
-    generatePlandidAuthToken: generatePlandidAuthToken,
+    generateAuthToken: generateAuthToken,
     simpleDatabaseMethods: simpleDatabaseMethods,
     checkForClientError: checkForClientError,
     getServiceIdMap: getServiceIdMap,
