@@ -1,8 +1,2 @@
-#!/bin/sh
-
-if npm run test ; then
-    npm run increment-patch
-    exit 0
-else
-    exit 1
-fi
+#! /bin/sh
+npx pre-commit-githook

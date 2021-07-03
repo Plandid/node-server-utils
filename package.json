@@ -1,27 +1,16 @@
 {
-  "name": "server-utils",
-  "version": "0.0.0",
+  "name": "@plandid/server-utils",
+  "version": "0.0.1",
   "description": "Server utilities for Plandid nodejs servers.",
-  "main": "./src./index.js",
+  "main": "./src/index.js",
+  "bin": {
+    "utils-setup": "./src/scripts/utilsSetup.mjs",
+    "build-image": "./src/scripts/buildImage.mjs",
+    "run-container": "./src/scripts/runContainer.mjs"
+  },
   "scripts": {
-    "prepare": "bash scripts/preinstall.sh",
     "test": "jest",
-    "start": "node src/server.js",
-    "delete-database": "node scripts/deleteDatabase.js",
-    "create-database": "node scripts/createDatabase.js",
-    "clear-database": "node scripts/clearDatabase.js",
-    "update-database": "node scripts/updateDatabase.js",
-    "increment-patch": "node scripts/incrementPatch.js",
-    "increment-minor": "node scripts/incrementMinor.js",
-    "increment-major": "node scripts/incrementMajor.js",
-    "commit-minor": "bash scripts/commit-minor.sh",
-    "commit-major": "bash scripts/commit-major.sh",
-    "tag-commit": "node scripts/tagCommit.js",
-    "build-image": "node scripts/buildImage.js",
-    "run-container": "node scripts/runContainer.js",
-    "kill-all-containers": "bash scripts/kill-all-containers.sh",
-    "gcp-copy-devimage-to-prod": "bash scripts/gcp-copy-devimage-to-prod.sh",
-    "upload-image": "bash scripts/upload-image.sh"
+    "prepare": "scripts-setup"
   },
   "repository": {
     "type": "git",
@@ -34,18 +23,10 @@
   },
   "homepage": "https://github.com/Plandid/node-server-utils#readme",
   "dependencies": {
-    "axios": "^0.21.1",
-    "basic-auth": "^2.0.1",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "luxon": "^1.27.0",
-    "mongodb": "^3.6.9"
+    "axios": "^0.21.1"
   },
   "devDependencies": {
+    "@plandid/node-scripts": "^1.0.0",
     "jest": "^27.0.4"
-  },
-  "jest": {
-    "globalSetup": "./scripts/jestSetup.js",
-    "globalTeardown": "./scripts/jestTeardown.js"
   }
 }

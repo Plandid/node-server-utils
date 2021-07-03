@@ -1,3 +1,2 @@
-#!/bin/sh
-
-npm run tag-commit
+#! /bin/sh
+npx post-commit-githook

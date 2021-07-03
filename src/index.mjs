@@ -1,6 +1,10 @@
-const axios = require("axios");
+import axios from 'axios';
 
-// not exported
+/* module variables */
+
+let jwtKeys = {};
+
+/* helper functions */
 
 function objectMatchesTemplate(obj, template, typeCheck=false) {
     const notValid = typeCheck ? 
@@ -14,10 +18,6 @@ function objectMatchesTemplate(obj, template, typeCheck=false) {
     }
 
     return true;
-}
-
-function generateAuthToken(username, password) {
-    return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
 }
 
 function useFilter(req, pathFilter, recordFilter) {
@@ -39,7 +39,69 @@ function useFilter(req, pathFilter, recordFilter) {
     return {filter: filter, record: record};
 }
 
-async function simpleDatabaseMethods(router, collection, pathFilter={}, recordFilter={}) {
+async function getService() {
+    let variables = {};
+    try {
+        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
+            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+        });
+        variables = res.data;
+    } catch (error) {
+        console.error("couldn't fetch environment");
+        console.error(error);
+    }
+    return variables ? variables : {};
+}
+
+async function getClients() {
+    let variables = {};
+    try {
+        const res = await axios.get(new URL(`clients`, process.env.APPDATA_DRIVER_URL).href, {
+            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+        });
+        variables = res.data;
+    } catch (error) {
+        console.error("couldn't fetch environment");
+        console.error(error);
+    }
+    return variables ? variables : {};
+}
+
+async function getEnvironment() {
+    let variables = {};
+    try {
+        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
+            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+        });
+        variables = res.data.environmentVariables;
+    } catch (error) {
+        console.error("couldn't fetch environment");
+        console.error(error);
+    }
+    return variables ? variables : {};
+}
+
+async function updateJwtKeys() {
+    const service = await getService();
+    const clients = await getClients();
+    let newKeys = {};
+    
+    for (const client of clients) {
+        if (service.supportedClients.hasOwnProperty(client.name)) {
+            jwtKeys[client.name] = client.jwtKey;
+        }
+    }
+
+    jwtKeys = newKeys;
+}
+
+/* exported functions */
+
+export function createAuthToken(username, password) {
+    return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+}
+
+export async function mongoCollectionMethods(router, collection, pathFilter={}, recordFilter={}) {
     router.get("/:_id", async function(req, res, next) {
         try {
             const { filter } = useFilter(req, pathFilter, {});
@@ -107,20 +169,7 @@ async function simpleDatabaseMethods(router, collection, pathFilter={}, recordFi
     });
 }
 
-function checkForClientError(req, options) {
-    let message = "";
-
-    if ("pathParams" in options && !objectMatchesTemplate(req.params, options.pathParams, options.typeCheck)) message += `\nInvalid path parameters. Expected Format:\n${JSON.stringify(options.pathParams)}\n`;
-    if ("queryParams" in options && !objectMatchesTemplate(req.query, options.queryParams, options.typeCheck)) message += `\nInvalid query parameters. Expected Format:\n${JSON.stringify(options.queryParams)}\n`;
-    if ("headers" in options && !objectMatchesTemplate(req.headers, options.headers, options.typeCheck)) message += `\nInvalid header parameters. Expected Format:\n${JSON.stringify(options.headers)}\n`;
-    if ("body" in options && !objectMatchesTemplate(req.body, options.body, options.typeCheck)) message += `\nInvalid JSON body. Expected Format:\n${JSON.stringify(options.body)}\n`;
-
-    if (message.length > 0) {
-        throw message;
-    }
-}
-
-async function getServiceIdMap() {
+export async function getServiceIdMap() {
     let serviceIdMap = {};
     const res = await axios.get(new URL("services", process.env.APPDATA_DRIVER_URL).href, {
         headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
@@ -131,45 +180,4 @@ async function getServiceIdMap() {
     }
 
     return serviceIdMap;
-}
-
-async function getClientIdMap() {
-    let clientIdMap = {};
-    const res = await axios.get(new URL("clients", process.env.APPDATA_DRIVER_URL).href, {
-        headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
-    });
-    
-    for (const service of res.data) {
-        clientIdMap[service.name] = service._id;
-    }
-
-    return clientIdMap;
-}
-
-async function getEnvironment() {
-    let variables = {};
-    try {
-        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
-        });
-        variables = res.data.environmentVariables;
-    } catch (error) {
-        console.error("couldn't fetch environment");
-        console.error(error);
-    }
-    return variables ? variables : {};
-}
-
-async function assignEnvironment() {
-    Object.assign(process.env, await getEnvironment());
-}
-
-module.exports = {
-    objectMatchesTemplate: objectMatchesTemplate,
-    generateAuthToken: generateAuthToken,
-    simpleDatabaseMethods: simpleDatabaseMethods,
-    checkForClientError: checkForClientError,
-    getServiceIdMap: getServiceIdMap,
-    getClientIdMap: getClientIdMap,
-    assignEnvironment: assignEnvironment
 }
