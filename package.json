@@ -4,7 +4,8 @@
   "description": "Server utilities for Plandid nodejs servers.",
   "main": "./src/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "prepare": "scripts-setup"
   },
   "repository": {
     "type": "git",
@@ -17,10 +18,10 @@
   },
   "homepage": "https://github.com/Plandid/node-server-utils#readme",
   "dependencies": {
+    "@plandid/node-scripts": "^1.0.4",
     "axios": "^0.21.1"
   },
   "devDependencies": {
-    "@plandid/node-scripts": "^1.0.0",
     "jest": "^27.0.4"
   }
 }
