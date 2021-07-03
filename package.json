@@ -1,6 +1,6 @@
 {
   "name": "@plandid/server-utils",
-  "version": "0.20.-1",
+  "version": "0.21.-1",
   "description": "Server utilities for Plandid nodejs servers.",
   "main": "./src/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/Plandid/node-server-utils#readme",
   "dependencies": {
-    "@plandid/node-scripts": "^1.0.14",
+    "@plandid/node-scripts": "^1.0.17",
     "axios": "^0.21.1"
   },
   "devDependencies": {
