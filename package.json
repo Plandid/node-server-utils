@@ -3,14 +3,8 @@
   "version": "0.0.1",
   "description": "Server utilities for Plandid nodejs servers.",
   "main": "./src/index.js",
-  "bin": {
-    "utils-setup": "./src/scripts/utilsSetup.mjs",
-    "build-image": "./src/scripts/buildImage.mjs",
-    "run-container": "./src/scripts/runContainer.mjs"
-  },
   "scripts": {
-    "test": "jest",
-    "prepare": "scripts-setup"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
