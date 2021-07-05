@@ -97,12 +97,12 @@ async function updateserviceIdMap(credentials) {
 
 /* exported functions */
 
-async function checkServiceCreds(credentials) {
-    if (serviceIdMap.hasOwnProperty(credentials.serviceName) && serviceIdMap[credentials.serviceName] === credentials.serviceId) {
+async function checkServiceCreds(serviceName, serviceId, credentials) {
+    if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
         return true;
     } else {
         await updateserviceIdMap(credentials.serviceName, credentials.serviceId, credentials.appdataDriverUrl);
-        return serviceIdMap.hasOwnProperty(credentials.serviceName) && serviceIdMap[credentials.serviceName] === credentials.serviceId;
+        return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
     }
 }
 
