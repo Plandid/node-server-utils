@@ -111,7 +111,7 @@ async function checkServiceCreds(serviceName, serviceId) {
     }
 }
 
-async function createAuthToken(username, password) {
+function createAuthToken(username, password) {
     return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
 }
 
