@@ -1,4 +1,5 @@
-import axios from 'axios';
+const axios = require('axios');
+const process = require('process');
 
 /* module variables */
 
@@ -97,15 +98,21 @@ async function updateServiceIdMap() {
 
 /* exported functions */
 
-export function checkServiceCreds(serviceName, serviceId) {
-    if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
-        return true;
-    } else {
-        await updateServiceIdMap();
-        return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
-    }
-}
+module.exports = {
+    checkServiceCreds: async function(serviceName, serviceId) {
+        if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
+            return true;
+        } else {
+            await updateServiceIdMap();
+            return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
+        }
+    },
 
-export function createAuthToken(username, password) {
-    return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
-}
+    createAuthToken: async function(username, password) {
+        return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+    },
+
+    updateEnvironment: async function() {
+        Object.assign(process.env, await getEnvironment());
+    }
+};
