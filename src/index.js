@@ -1,5 +1,9 @@
 const axios = require('axios');
 const process = require('process');
+const fs = require('fs');
+const path = require('path');
+
+const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json')));
 
 /* module variables */
 
@@ -31,7 +35,7 @@ async function getService() {
     let variables = {};
     try {
         const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
         });
         variables = res.data;
     } catch (error) {
@@ -45,7 +49,7 @@ async function getClients() {
     let variables = {};
     try {
         const res = await axios.get(new URL(`clients`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
         });
         variables = res.data;
     } catch (error) {
@@ -59,7 +63,7 @@ async function getEnvironment() {
     let variables = {};
     try {
         const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
         });
         variables = res.data.environmentVariables;
     } catch (error) {
@@ -86,7 +90,7 @@ async function updateJwtKeys() {
 async function updateServiceIdMap() {
     let newMap = {};
     const res = await axios.get(new URL("services", process.env.APPDATA_DRIVER_URL).href, {
-        headers: {Authorization: `Basic ${getPlandidAuthToken()}`}
+        headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
     });
     
     for (const service of res.data) {
