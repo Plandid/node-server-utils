@@ -122,5 +122,6 @@ async function updateEnvironment() {
 module.exports = {
     checkServiceCreds: checkServiceCreds,
     createAuthToken: createAuthToken,
-    updateEnvironment: updateEnvironment
+    updateEnvironment: updateEnvironment,
+    useFilter: useFilter
 };

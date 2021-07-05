@@ -1,6 +1,6 @@
 {
   "name": "@plandid/server-utils",
-  "version": "0.21.5",
+  "version": "0.21.6",
   "description": "Server utilities for Plandid nodejs servers.",
   "main": "./src/index.js",
   "scripts": {
