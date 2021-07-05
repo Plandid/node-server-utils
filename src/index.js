@@ -98,21 +98,25 @@ async function updateServiceIdMap() {
 
 /* exported functions */
 
-module.exports = {
-    checkServiceCreds: async function(serviceName, serviceId) {
-        if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
-            return true;
-        } else {
-            await updateServiceIdMap();
-            return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
-        }
-    },
-
-    createAuthToken: async function(username, password) {
-        return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
-    },
-
-    updateEnvironment: async function() {
-        Object.assign(process.env, await getEnvironment());
+async function checkServiceCreds(serviceName, serviceId) {
+    if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
+        return true;
+    } else {
+        await updateServiceIdMap();
+        return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
     }
+}
+
+async function createAuthToken(username, password) {
+    return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+}
+
+async function updateEnvironment() {
+    Object.assign(process.env, await getEnvironment());
+}
+
+module.exports = {
+    checkServiceCreds: checkServiceCreds,
+    createAuthToken: createAuthToken,
+    updateEnvironment: updateEnvironment
 };
