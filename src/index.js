@@ -26,7 +26,7 @@ function useFilter(req, pathFilter, recordFilter) {
     return {filter: filter, record: record};
 }
 
-async function getService(serviceName, serviceId, appdataDriverUrl) {
+async function getService(credentials) {
     let variables = {};
     try {
         const res = await axios.get(new URL(`services/${serviceId}`, appdataDriverUrl).href, {
@@ -40,7 +40,7 @@ async function getService(serviceName, serviceId, appdataDriverUrl) {
     return variables ? variables : {};
 }
 
-async function getClients(serviceName, serviceId, appdataDriverUrl) {
+async function getClients(credentials) {
     let variables = {};
     try {
         const res = await axios.get(new URL(`clients`, appdataDriverUrl).href, {
@@ -54,7 +54,7 @@ async function getClients(serviceName, serviceId, appdataDriverUrl) {
     return variables ? variables : {};
 }
 
-async function getEnvironment(serviceName, serviceId, appdataDriverUrl) {
+async function getEnvironment(credentials) {
     let variables = {};
     try {
         const res = await axios.get(new URL(`services/${serviceId}`, appdataDriverUrl).href, {
@@ -68,7 +68,7 @@ async function getEnvironment(serviceName, serviceId, appdataDriverUrl) {
     return variables ? variables : {};
 }
 
-async function updateJwtKeys(serviceName, serviceId, appdataDriverUrl) {
+async function updateJwtKeys(credentials) {
     const service = await getService(serviceName, serviceId, appdataDriverUrl);
     const clients = await getClients(serviceName, serviceId, appdataDriverUrl);
     let newKeys = {};
@@ -82,7 +82,7 @@ async function updateJwtKeys(serviceName, serviceId, appdataDriverUrl) {
     jwtKeys = newKeys;
 }
 
-async function updateServiceIdMap(serviceName, serviceId, appdataDriverUrl) {
+async function updateServiceIdMap(credentials) {
     let newMap = {};
     const res = await axios.get(new URL("services", appdataDriverUrl).href, {
         headers: {Authorization: `Basic ${createAuthToken(serviceName, serviceId)}`}
@@ -97,7 +97,7 @@ async function updateServiceIdMap(serviceName, serviceId, appdataDriverUrl) {
 
 /* exported functions */
 
-async function checkServiceCreds(serviceName, serviceId, appdataDriverUrl) {
+async function checkServiceCreds(credentials) {
     if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
         return true;
     } else {
@@ -110,7 +110,7 @@ function createAuthToken(username, password) {
     return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
 }
 
-async function updateEnvironment(environment, serviceName, serviceId, appdataDriverUrl) {
+async function updateEnvironment(environment, credentials) {
     Object.assign(environment, await getEnvironment(serviceName, serviceId, appdataDriverUrl));
 }
 
