@@ -1,4 +1,9 @@
 const axios = require('axios');
+const process = require('process');
+const fs = require('fs');
+const path = require('path');
+
+const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json')));
 
 /* module variables */
 
@@ -26,11 +31,11 @@ function useFilter(req, pathFilter, recordFilter) {
     return {filter: filter, record: record};
 }
 
-async function getService(credentials) {
+async function getService() {
     let variables = {};
     try {
-        const res = await axios.get(new URL(`services/${credentials.serviceId}`, credentials.appdataDriverUrl).href, {
-            headers: {Authorization: `Basic ${createAuthToken(credentials.serviceName, credentials.serviceId)}`}
+        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
+            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
         });
         variables = res.data;
     } catch (error) {
@@ -40,11 +45,11 @@ async function getService(credentials) {
     return variables ? variables : {};
 }
 
-async function getClients(credentials) {
+async function getClients() {
     let variables = {};
     try {
-        const res = await axios.get(new URL(`clients`, credentials.appdataDriverUrl).href, {
-            headers: {Authorization: `Basic ${createAuthToken(credentials.serviceName, credentials.serviceId)}`}
+        const res = await axios.get(new URL(`clients`, process.env.APPDATA_DRIVER_URL).href, {
+            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
         });
         variables = res.data;
     } catch (error) {
@@ -54,11 +59,11 @@ async function getClients(credentials) {
     return variables ? variables : {};
 }
 
-async function getEnvironment(credentials) {
+async function getEnvironment() {
     let variables = {};
     try {
-        const res = await axios.get(new URL(`services/${credentials.serviceId}`, credentials.appdataDriverUrl).href, {
-            headers: {Authorization: `Basic ${createAuthToken(credentials.serviceName, credentials.serviceId)}`}
+        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
+            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
         });
         variables = res.data.environmentVariables;
     } catch (error) {
@@ -68,9 +73,9 @@ async function getEnvironment(credentials) {
     return variables ? variables : {};
 }
 
-async function updateJwtKeys(credentials) {
-    const service = await getService(credentials.serviceName, credentials.serviceId, credentials.appdataDriverUrl);
-    const clients = await getClients(credentials.serviceName, credentials.serviceId, credentials.appdataDriverUrl);
+async function updateJwtKeys() {
+    const service = await getService();
+    const clients = await getClients();
     let newKeys = {};
     
     for (const client of clients) {
@@ -82,10 +87,10 @@ async function updateJwtKeys(credentials) {
     jwtKeys = newKeys;
 }
 
-async function updateserviceIdMap(credentials) {
+async function updateServiceIdMap() {
     let newMap = {};
-    const res = await axios.get(new URL("services", credentials.appdataDriverUrl).href, {
-        headers: {Authorization: `Basic ${createAuthToken(credentials.serviceName, credentials.serviceId)}`}
+    const res = await axios.get(new URL("services", process.env.APPDATA_DRIVER_URL).href, {
+        headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
     });
     
     for (const service of res.data) {
@@ -97,11 +102,11 @@ async function updateserviceIdMap(credentials) {
 
 /* exported functions */
 
-async function checkServiceCreds(serviceName, serviceId, credentials) {
+async function checkServiceCreds(serviceName, serviceId) {
     if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
         return true;
     } else {
-        await updateserviceIdMap(credentials.serviceName, credentials.serviceId, credentials.appdataDriverUrl);
+        await updateServiceIdMap();
         return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
     }
 }
@@ -110,8 +115,8 @@ function createAuthToken(username, password) {
     return Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
 }
 
-async function updateEnvironment(environment, credentials) {
-    Object.assign(environment, await getEnvironment(credentials.serviceName, credentials.serviceId, credentials.appdataDriverUrl));
+async function updateEnvironment() {
+    Object.assign(process.env, await getEnvironment());
 }
 
 module.exports = {
