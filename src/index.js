@@ -3,12 +3,13 @@ const process = require('process');
 const fs = require('fs');
 const path = require('path');
 
-const config = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'config.json')));
-
 /* module variables */
 
 let jwtKeys = {};
 let serviceIdMap = {};
+let creds = '';
+let authToken = '';
+
 
 /* helper functions */
 
@@ -34,8 +35,8 @@ function useFilter(req, pathFilter, recordFilter) {
 async function getService() {
     let variables = {};
     try {
-        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
+        const res = await axios.get(new URL(`services/${creds.serviceId}`, creds.appdataUrl).href, {
+            headers: {Authorization: `Basic ${authToken}`}
         });
         variables = res.data;
     } catch (error) {
@@ -48,8 +49,8 @@ async function getService() {
 async function getClients() {
     let variables = {};
     try {
-        const res = await axios.get(new URL(`clients`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
+        const res = await axios.get(new URL(`clients`, creds.appdataUrl).href, {
+            headers: {Authorization: `Basic ${authToken}`}
         });
         variables = res.data;
     } catch (error) {
@@ -62,8 +63,8 @@ async function getClients() {
 async function getEnvironment() {
     let variables = {};
     try {
-        const res = await axios.get(new URL(`services/${process.env.SERVICE_ID}`, process.env.APPDATA_DRIVER_URL).href, {
-            headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
+        const res = await axios.get(new URL(`services/${creds.serviceId}`, creds.appdataUrl).href, {
+            headers: {Authorization: `Basic ${authToken}`}
         });
         variables = res.data.environmentVariables;
     } catch (error) {
@@ -73,24 +74,24 @@ async function getEnvironment() {
     return variables ? variables : {};
 }
 
-async function updateJwtKeys() {
-    const service = await getService();
-    const clients = await getClients();
-    let newKeys = {};
+// async function updateJwtKeys() {
+//     const service = await getService();
+//     const clients = await getClients();
+//     let newKeys = {};
     
-    for (const client of clients) {
-        if (service.supportedClients.hasOwnProperty(client.name)) {
-            jwtKeys[client.name] = client.jwtKey;
-        }
-    }
+//     for (const client of clients) {
+//         if (service.supportedClients.hasOwnProperty(client.name)) {
+//             jwtKeys[client.name] = client.jwtKey;
+//         }
+//     }
 
-    jwtKeys = newKeys;
-}
+//     jwtKeys = newKeys;
+// }
 
 async function updateServiceIdMap() {
     let newMap = {};
-    const res = await axios.get(new URL("services", process.env.APPDATA_DRIVER_URL).href, {
-        headers: {Authorization: `Basic ${createAuthToken(config.serviceName, process.env.SERVICE_ID)}`}
+    const res = await axios.get(new URL("services", creds.appdataUrl).href, {
+        headers: {Authorization: `Basic ${authToken}`}
     });
     
     for (const service of res.data) {
@@ -106,7 +107,7 @@ async function checkServiceCreds(serviceName, serviceId) {
     if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
         return true;
     } else {
-        await updateServiceIdMap();
+        await updateServiceIdMap(creds.appdataUrl, authToken);
         return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
     }
 }
@@ -119,7 +120,13 @@ async function updateEnvironment() {
     Object.assign(process.env, await getEnvironment());
 }
 
+function configure(credentials) {
+    Object.assign(creds, credentials);
+    authToken = createAuthToken(creds.serviceName, creds.serviceId);
+}
+
 module.exports = {
+    configure: configure,
     checkServiceCreds: checkServiceCreds,
     createAuthToken: createAuthToken,
     updateEnvironment: updateEnvironment,
