@@ -7,7 +7,7 @@ const path = require('path');
 
 let jwtKeys = {};
 let serviceIdMap = {};
-let creds = '';
+let creds = {};
 let authToken = '';
 
 
@@ -107,7 +107,7 @@ async function checkServiceCreds(serviceName, serviceId) {
     if (serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId) {
         return true;
     } else {
-        await updateServiceIdMap(creds.appdataUrl, authToken);
+        await updateServiceIdMap();
         return serviceIdMap.hasOwnProperty(serviceName) && serviceIdMap[serviceName] === serviceId;
     }
 }
